@@ -1,15 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import styles from './app.module.css';
-
-import NxWelcome from './nx-welcome';
+import Routes from '../routes/Routes';
 
 export function App() {
   return (
-    <>
-      <NxWelcome title="react-chase-the-pig" />
-
-      <div />
-    </>
+    <div>
+      <Routes />
+    </div>
   );
 }
 
