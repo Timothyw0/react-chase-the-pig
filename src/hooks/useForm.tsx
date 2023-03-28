@@ -6,7 +6,7 @@ export const useForm = (initialState: any = {}, constraints: any = {}) => {
   const [values, setValues] = useState<any>(initialState);
   const [errors, setErrors] = useState<any>(response || {});
   const [isValid, setIsValid] = useState<Boolean>(validate.isEmpty(response));
-  const [touched, setTouched] = useState<Object>({});
+  const [touched, setTouched] = useState<any>({});
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValues = {
