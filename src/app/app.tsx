@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import styles from './app.module.css';
+import './app.module.css';
 import Routes from '../routes/Routes';
 
 export function App() {
