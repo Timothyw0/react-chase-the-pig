@@ -1,30 +1,24 @@
-import React, { memo, useContext, useState } from 'react';
+import React, { memo, useContext } from 'react';
 import loaderContext from 'src/contexts/loaderContext';
-import { Link } from 'react-router-dom';
 import { useForm } from '../../hooks/useForm';
-import { INVALID_PASSWORD } from 'src/utils/messaging';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../utils/firebase';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { Box, Button, Grid, Paper, TextField, Typography } from '@mui/material';
 
 interface FormProps {
   values: {
     email: string;
-    password: string;
   };
   errors: {
     email: Array<string>;
-    password: Array<string>;
   };
   touched: {
     email: Boolean;
-    password: Boolean;
   };
   changeHandler: React.ChangeEventHandler<HTMLInputElement>;
 }
 
-const Login: React.FC = () => {
+const ForgotPassword: React.FC = () => {
   const initialState = {
     email: '',
     password: '',
@@ -33,18 +27,18 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { values, changeHandler }: FormProps = useForm(initialState);
   const { setIsLoading, setNotificationMessage, setNotificationSeverity } = useContext(loaderContext);
+  const auth = getAuth();
 
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    await signInWithEmailAndPassword(auth, values?.email, values?.password)
-      .then((userCredential) => {
-        sessionStorage.setItem('ctp-user', JSON.stringify(userCredential));
-        navigate('/home');
+    await sendPasswordResetEmail(auth, values?.email)
+      .then(() => {
+        navigate('/login');
       })
-      .catch(() => {
+      .catch((err) => {
         setNotificationSeverity('error');
-        setNotificationMessage(INVALID_PASSWORD);
+        setNotificationMessage(err?.message);
       })
       .finally(() => {
         setIsLoading(false);
@@ -52,7 +46,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <form name="loginForm" onSubmit={submitForm}>
+    <form name="forgotPasswordForm" onSubmit={submitForm}>
       <Grid container component="main" sx={{ height: '100vh' }}>
         <Grid
           item
@@ -78,7 +72,7 @@ const Login: React.FC = () => {
             }}
           >
             <Typography component="h1" variant="h5">
-              Sign in
+              Reset Password
             </Typography>
             <Box sx={{ mt: 1 }}>
               <TextField
@@ -91,27 +85,9 @@ const Login: React.FC = () => {
                 name="email"
                 autoFocus
               />
-              <TextField
-                onChange={changeHandler}
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-              />
               <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                Sign In
+                Send Reset Email
               </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link to="/forgotPassword">Forgot password?</Link>
-                </Grid>
-                <Grid item>
-                  <Link to="/register">{"Don't have an account? Sign Up"}</Link>
-                </Grid>
-              </Grid>
             </Box>
           </Box>
         </Grid>
@@ -120,4 +96,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default memo(Login);
+export default memo(ForgotPassword);

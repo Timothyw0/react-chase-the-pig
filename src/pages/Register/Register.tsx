@@ -1,4 +1,5 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
+import loaderContext from 'src/contexts/loaderContext';
 import { Link } from 'react-router-dom';
 import { Box, Button, Grid, Paper, TextField, Typography } from '@mui/material';
 import { useForm } from '../../hooks/useForm';
@@ -45,12 +46,13 @@ const Register: React.FC = () => {
     },
   };
 
-  const [registerError, setRegisterError] = useState<string>('');
+  const { setIsLoading, setNotificationMessage, setNotificationSeverity } = useContext(loaderContext);
   const navigate = useNavigate();
   const { values, errors, touched, isValid, changeHandler }: FormProps = useForm(initialState, constraints);
 
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    setIsLoading(true);
     if (!isValid) return;
     await createUserWithEmailAndPassword(auth, values?.email, values?.passwordOne)
       .then((userCredential) => {
@@ -58,7 +60,11 @@ const Register: React.FC = () => {
         navigate('/home');
       })
       .catch((err) => {
-        setRegisterError(err?.message);
+        setNotificationSeverity('error');
+        setNotificationMessage(err?.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -71,7 +77,8 @@ const Register: React.FC = () => {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url("https://source.unsplash.com/random")',
+            backgroundImage:
+              'url("https://c1.wallpaperflare.com/preview/548/541/260/playing-cards-poker-bridge-game.jpg")',
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -122,8 +129,6 @@ const Register: React.FC = () => {
                 id="passwordTwo"
               />
               {errors?.passwordTwo && <span className={Styles.errorText}>{errors?.passwordTwo?.[0]}</span>}
-              <br />
-              {registerError && <span className={Styles.errorText}>{registerError}</span>}
               <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                 Register
               </Button>
